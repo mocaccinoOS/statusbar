@@ -78,6 +78,7 @@ func (br *BlockRenderer) Close() {
 
 func Renderer() *BlockRenderer {
 	return &BlockRenderer{active: make(map[string]interface{}), blocks: []Block{
+		&blocks.Welcome{},
 		&blocks.Donate{},
 		&blocks.CPU{},
 		&blocks.Memory{},
