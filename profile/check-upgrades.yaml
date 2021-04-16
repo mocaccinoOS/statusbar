@@ -1,0 +1,20 @@
+stages:
+  reconcile:
+       -  name: "populate /run/mocaccino/upgrades_available if needed"
+          commands: 
+          - |
+              if [ ! -d "/run/mocaccino" ]; then
+                  mkdir -p /run/mocaccino
+              fi
+
+              upgrades=$(echo "n" | luet upgrade)
+
+              if echo "$upgrades" | grep -q "Nothing to upgrade"; then
+                  if [ -e "/run/mocaccino/upgrades_available" ]; then
+                    rm -rf "/run/mocaccino/upgrades_available"
+                  fi
+              elif echo "$upgrades" | grep -q "Do you want to continue with this operation"; then
+                  touch /run/mocaccino/upgrades_available
+                  chmod 644 /run/mocaccino/upgrades_available
+              fi
+name: "check upgrades"

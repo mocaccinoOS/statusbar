@@ -18,28 +18,24 @@ type CPU struct {
 func (c *CPU) Close() {
 }
 
-func (c *CPU) Menu(r Renderer) {
+func (c *CPU) Menu(n Notifier, r Renderer) {
 	showCPU := systray.AddMenuItemCheckbox("Show CPU Metrics", "Show CPU metrics", false)
 
 	go func() {
-		for {
-			select {
-			case <-showCPU.ClickedCh:
-				if showCPU.Checked() {
-					showCPU.Uncheck()
-					r.Disable(CPUKey)
-					systray.SetTitle("")
-				} else {
-					showCPU.Check()
-					r.Activate(CPUKey)
-				}
+		for range showCPU.ClickedCh {
+			if showCPU.Checked() {
+				showCPU.Uncheck()
+				r.Disable(CPUKey)
+			} else {
+				showCPU.Check()
+				r.Activate(CPUKey)
 			}
 		}
 	}()
 }
 
 func (c *CPU) ID() string { return CPUKey }
-func (c *CPU) String() string {
+func (c *CPU) Render(Notifier) string {
 	now, err := cpu.Get()
 	if err != nil {
 		return ""

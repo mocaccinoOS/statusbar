@@ -23,5 +23,5 @@ func Run(s string) (string, error) {
 }
 
 func Sudo(s string) (string, error) {
-	return Run(fmt.Sprintf("pkexec %s", s))
+	return Run(fmt.Sprintf("pkexec /bin/sh -c \"%s\"", s))
 }

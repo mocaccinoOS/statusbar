@@ -2,6 +2,7 @@ package blocks
 
 import (
 	"log"
+	//	"github.com/0xAX/notificator"
 
 	"github.com/zserge/lorca"
 )
@@ -12,7 +13,10 @@ const (
 
 type Welcome struct{}
 
-func (c *Welcome) Menu(r Renderer) {
+func (c *Welcome) Menu(n Notifier, r Renderer) {
+
+	//	n.Push("test", "test", "", notificator.UR_CRITICAL)
+
 	go func() {
 		ui, err := lorca.New("https://www.mocaccino.org/", "", 480, 320)
 		// ui, err := lorca.New("data:text/html,"+url.PathEscape(`
@@ -34,6 +38,6 @@ func (c *Welcome) Menu(r Renderer) {
 func (c *Welcome) Close()     {}
 func (c *Welcome) ID() string { return WelcomeKey }
 
-func (c *Welcome) String() string {
+func (c *Welcome) Render(Notifier) string {
 	return ""
 }

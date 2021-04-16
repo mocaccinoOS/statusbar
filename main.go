@@ -1,30 +1,54 @@
+//go:generate statik -f -src=./public -include=*.jpg,*.txt,*.html,*.css,*.js
+
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
-	"time"
+	"github.com/MocaccinoOS/statusbar/blocks"
+	"github.com/MocaccinoOS/statusbar/pkg/statusbar"
 
-	"github.com/MocaccinoOS/statusbar/icon"
 	"github.com/getlantern/systray"
 )
 
 func main() {
-	onExit := func() {
-		now := time.Now()
-		ioutil.WriteFile(fmt.Sprintf(`on_exit_%d.txt`, now.UnixNano()), []byte(now.String()), 0644)
-	}
+	bar := statusbar.NewBar(
+		statusbar.WithAppName("MocaccinoOS Statusbar"),
+		//	statusbar.WithNotificationIcon("icon/icon.png"),
+		statusbar.WithBlocks(
+			&blocks.Upgrade{},
 
-	systray.Run(onReady, onExit)
-}
-
-func onReady() {
-	systray.SetTemplateIcon(icon.Data, icon.Data)
-	systray.SetTitle("")
-	systray.SetTooltip("Mocaccino OS Statusbar")
-
-	br := Renderer()
-	br.Run()
-
-	Systray(br)
+	//		&blocks.Settings{},
+			&blocks.Open{
+				Text:    "Community",
+				SubText: "Browse Community",
+				URL:     "https://community.mocaccino.org/",
+			},
+			&blocks.Open{
+				Text:    "Issues",
+				SubText: "File a new bug or a feature request",
+				URL:     "https://github.com/mocaccinoOS/mocaccino/issues",
+			},
+			&blocks.Open{
+				Text:    "Chat",
+				SubText: "Join us on slack",
+				URL:     "https://join.slack.com/t/luet/shared_invite/enQtOTQxMjcyNDQ0MDUxLWQ5ODVlNTI1MTYzNDRkYzkyYmM1YWE5YjM0NTliNDEzNmQwMTkxNDRhNDIzM2Y5NDBlOTZjZTYxYWQyNDE4YzY",
+			},
+			&blocks.Separator{},
+			&blocks.ChromeEmbeddedOpener{
+				Text:    "Documentation",
+				SubText: "Browse MocaccinoOS Docs",
+				URL:     "https://www.mocaccino.org/docs/",
+			},
+			&blocks.ChromeEmbeddedOpener{
+				Text:    "Packages",
+				SubText: "Browse MocaccinoOS Packages",
+				URL:     "https://packages.mocaccino.org/",
+			},
+			&blocks.Separator{},
+			&blocks.Welcome{},
+			&blocks.Donate{},
+			&blocks.CPU{},
+			&blocks.Memory{},
+		),
+	)
+	systray.Run(bar.Ready, bar.Close)
 }

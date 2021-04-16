@@ -3,14 +3,15 @@ package blocks
 import (
 	"fmt"
 
+	"github.com/0xAX/notificator"
 	util "github.com/MocaccinoOS/statusbar/utils"
 	"github.com/getlantern/systray"
 	"github.com/sqweek/dialog"
 )
 
 const (
-	DonateKey       string = "donate"
-	continueMessage        = `
+	DonateKey       = "donate"
+	continueMessage = `
 This will start xmrig locally to donate to the MocaccinoOS project wallet when 
 your CPU will be detected idleing in a 15mins interval. 
 
@@ -18,14 +19,16 @@ Are you sure you want to continue? `
 )
 
 type Donate struct {
+	donating bool
 }
 
 func (c *Donate) Close() {
-	StopDonate()
-	OnlyIdleDisable()
+	// Following requires interaction. TODO: find a way to disable without poking user
+	// StopDonate()
+	// OnlyIdleDisable()
 }
 
-func (c *Donate) Menu(r Renderer) {
+func (c *Donate) Menu(n Notifier, r Renderer) {
 	donateMenu := systray.AddMenuItem("Donate HW Power", "Donate HW Power to MocaccinoOS by running xmrig")
 	mStartDonating := donateMenu.AddSubMenuItem("Start donating HW", "Runs xmrig")
 	mStopDonating := donateMenu.AddSubMenuItem("Stop donating HW", "Stops xmrig")
@@ -37,12 +40,14 @@ func (c *Donate) Menu(r Renderer) {
 		donateShown := true
 
 		showDonate := func() {
+			//	c.donating = false
 			mStopDonating.Hide()
 			mStartDonating.Show()
 			donateShown = true
 		}
 
 		hideDonate := func() {
+			//	c.donating = true
 			mStopDonating.Show()
 			mStartDonating.Hide()
 			donateShown = false
@@ -51,7 +56,8 @@ func (c *Donate) Menu(r Renderer) {
 		startdonate := func() {
 			if err := StartDonate(); err != nil {
 				showDonate()
-				dialog.Message(err.Error()).Title("Failed").Error()
+				n.Push("Failed to start donating", err.Error(), "", notificator.UR_CRITICAL)
+				//dialog.Message(err.Error()).Title("Failed").Error()
 			} else {
 				hideDonate()
 			}
@@ -59,7 +65,9 @@ func (c *Donate) Menu(r Renderer) {
 		stopdonate := func() {
 			if err := StopDonate(); err != nil {
 				hideDonate()
-				dialog.Message(err.Error()).Title("Failed").Error()
+				n.Push("Failed to stop donating", err.Error(), "", notificator.UR_CRITICAL)
+
+				//	dialog.Message(err.Error()).Title("Failed").Error()
 			} else {
 				showDonate()
 			}
@@ -75,7 +83,7 @@ func (c *Donate) Menu(r Renderer) {
 
 		disableIdleDaemon := func() {
 			if err := OnlyIdleDisable(); err != nil {
-				dialog.Message(err.Error()).Title("Failed").Error()
+				n.Push("Failed to stop Idle service", err.Error(), "", notificator.UR_CRITICAL)
 				onlyIdle.Check()
 			} else {
 				onlyIdle.Uncheck()
@@ -86,7 +94,7 @@ func (c *Donate) Menu(r Renderer) {
 			ok := dialog.Message("%s", continueMessage).Title("Are you sure?").YesNo()
 			if ok {
 				if err := OnlyIdleEnable(); err != nil {
-					dialog.Message(err.Error()).Title("Failed").Error()
+					n.Push("Failed to enable Idle service", err.Error(), "", notificator.UR_CRITICAL)
 					onlyIdle.Uncheck()
 				} else {
 					onlyIdle.Check()
@@ -115,8 +123,11 @@ func (c *Donate) Menu(r Renderer) {
 
 func (c *Donate) ID() string { return DonateKey }
 
-func (c *Donate) String() string {
-	return fmt.Sprintf("")
+func (c *Donate) Render(Notifier) string {
+	if c.donating {
+		return "🌟"
+	}
+	return ""
 }
 
 func StartDonate() error {
@@ -125,7 +136,7 @@ func StartDonate() error {
 	}
 	out, err := util.Sudo("yip -s reconcile /etc/mocaccino/profiles && systemctl start xmrig")
 	if err != nil {
-		fmt.Println("Failed!")
+		fmt.Println("Failed starting to donate!")
 	}
 	fmt.Println(out)
 	return err

@@ -1,5 +1,5 @@
 #!/bin/sh
-
+set -e
 APP=mocaccino-statusbar
 APPDIR=${DESTDIR:-${APP}_1.0.0}
 

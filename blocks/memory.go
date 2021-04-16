@@ -13,20 +13,17 @@ const (
 
 type Memory struct{}
 
-func (c *Memory) Menu(r Renderer) {
+func (c *Memory) Menu(n Notifier, r Renderer) {
 	showMemory := systray.AddMenuItemCheckbox("Show Memory Metrics", "Show Memory metrics", false)
 	go func() {
-		for {
-			select {
-			case <-showMemory.ClickedCh:
-				if showMemory.Checked() {
-					showMemory.Uncheck()
-					r.Disable(MemoryKey)
-					systray.SetTitle("")
-				} else {
-					showMemory.Check()
-					r.Activate(MemoryKey)
-				}
+		for range showMemory.ClickedCh {
+			if showMemory.Checked() {
+				showMemory.Uncheck()
+				r.Disable(MemoryKey)
+				systray.SetTitle("")
+			} else {
+				showMemory.Check()
+				r.Activate(MemoryKey)
 			}
 		}
 	}()
@@ -35,7 +32,7 @@ func (c *Memory) Menu(r Renderer) {
 func (c *Memory) Close()     {}
 func (c *Memory) ID() string { return MemoryKey }
 
-func (c *Memory) String() string {
+func (c *Memory) Render(Notifier) string {
 	now, err := memory.Get()
 	if err != nil {
 		return ""
