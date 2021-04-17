@@ -11,7 +11,7 @@ const (
 	WelcomeKey string = "welcome"
 )
 
-type Welcome struct{}
+type Welcome struct{ URL string }
 
 func (c *Welcome) Menu(n Notifier, r Renderer) {
 

@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 APP=mocaccino-statusbar
-APPDIR=${DESTDIR:-${APP}_1.0.0}
+VERSION=${VERSION:-0.3}
+APPDIR=${DESTDIR:-${APP}_$VERSION}
 
 mkdir -p $APPDIR/usr/bin
 mkdir -p $APPDIR/usr/share/applications
@@ -10,10 +11,10 @@ mkdir -p $APPDIR/usr/share/icons/hicolor/256x256/apps
 mkdir -p $APPDIR/etc/xdg/autostart
 
 go generate
-go build -o $APPDIR/usr/bin/$APP
+go build -ldflags "-X \"main.Version=$VERSION\"" -o $APPDIR/usr/bin/$APP
 
-cp icon/icon.png $APPDIR/usr/share/icons/hicolor/1024x1024/apps/${APP}.png
-cp icon/icon.png $APPDIR/usr/share/icons/hicolor/256x256/apps/${APP}.png
+cp icon/menu_icon.png $APPDIR/usr/share/icons/hicolor/1024x1024/apps/${APP}.png
+cp icon/menu_icon.png $APPDIR/usr/share/icons/hicolor/256x256/apps/${APP}.png
 
 cat > $APPDIR/usr/share/applications/${APP}.desktop << EOF
 [Desktop Entry]

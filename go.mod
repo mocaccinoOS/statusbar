@@ -6,6 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/briandowns/spinner v1.12.0
+	github.com/c2h5oh/datasize v0.0.0-20200825124411-48ed595a09d2
 	github.com/getlantern/systray v1.1.0
 	github.com/mackerelio/go-osstat v0.1.0
 	github.com/pkg/errors v0.9.1

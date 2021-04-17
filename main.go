@@ -9,6 +9,8 @@ import (
 	"github.com/getlantern/systray"
 )
 
+var Version string
+
 func main() {
 	bar := statusbar.NewBar(
 		statusbar.WithAppName("MocaccinoOS Statusbar"),
@@ -16,7 +18,7 @@ func main() {
 		statusbar.WithBlocks(
 			&blocks.Upgrade{},
 
-	//		&blocks.Settings{},
+			//	&blocks.Settings{},
 			&blocks.Open{
 				Text:    "Community",
 				SubText: "Browse Community",
@@ -48,6 +50,17 @@ func main() {
 			&blocks.Donate{},
 			&blocks.CPU{},
 			&blocks.Memory{},
+			&blocks.ShellToggle{Name: "Show Running processes", Prefix: "p", Command: "ps -e | wc -l"},
+			//&blocks.Network{},
+
+			&blocks.Separator{},
+			&blocks.ShellMenu{Name: "Running processes", Command: "ps -e | wc -l"},
+			&blocks.NetworkStat{},
+
+			&blocks.Separator{},
+			&blocks.About{Version: Version},
+
+			&blocks.Separator{},
 		),
 	)
 	systray.Run(bar.Ready, bar.Close)
