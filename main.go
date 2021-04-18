@@ -1,4 +1,4 @@
-//go:generate statik -f -src=./public -include=*.jpg,*.txt,*.html,*.css,*.js
+//go:generate statik -f -src=./public -include=*.woff,*.ttf,*.png,*.jpg,*.txt,*.html,*.css,*.js
 
 package main
 

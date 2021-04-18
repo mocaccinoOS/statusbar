@@ -1,10 +1,15 @@
 package statusbar
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/0xAX/notificator"
 	"github.com/MocaccinoOS/statusbar/icon"
 	"github.com/MocaccinoOS/statusbar/pkg/block"
+	_ "github.com/MocaccinoOS/statusbar/statik"
 	"github.com/getlantern/systray"
+	"github.com/rakyll/statik/fs"
 )
 
 type Statusbar struct {
@@ -19,6 +24,19 @@ func NewBar(p ...Option) *Statusbar {
 	return &Statusbar{Options: *c}
 }
 
+func (sb *Statusbar) Serve() {
+	go func() {
+		statikFS, err := fs.New()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Serve the contents over HTTP.
+		http.Handle("/", http.FileServer(statikFS))
+		http.ListenAndServe("127.0.0.1:9910", nil)
+	}()
+}
+
 func (sb *Statusbar) Ready() {
 	systray.SetTemplateIcon(icon.Data, icon.Data)
 	systray.SetTitle(sb.Options.Title)
@@ -31,6 +49,7 @@ func (sb *Statusbar) Ready() {
 
 	br := block.NewRenderer(sb.notificator, sb.Options.Blocks)
 	br.Run()
+	sb.Serve()
 
 	sb.renderSystray(br)
 }
