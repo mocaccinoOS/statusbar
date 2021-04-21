@@ -2,8 +2,11 @@ package blocks
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 
 	_ "github.com/MocaccinoOS/statusbar/statik"
+	util "github.com/MocaccinoOS/statusbar/utils"
 	"github.com/zserge/lorca"
 	//	"github.com/0xAX/notificator"
 )
@@ -14,9 +17,14 @@ const (
 
 type Welcome struct{ URL string }
 
-func (c *Welcome) Menu(n Notifier, r Renderer) {
+func (c *Welcome) startWelcome(sentinel string) {
+
 	go func() {
 		ui, err := lorca.New("http://127.0.0.1:9910/welcome/index.html", "", 480, 320)
+		if err != nil {
+			log.Println("Failed starting chrome", err.Error())
+			return
+		}
 		// ui, err := lorca.New("data:text/html,"+url.PathEscape(`
 		// <html>
 		// 	<head><title>Hello</title></head>
@@ -31,7 +39,23 @@ func (c *Welcome) Menu(n Notifier, r Renderer) {
 		defer ui.Close()
 		// Wait until UI window is closed
 		<-ui.Done()
+		if sentinel != "" {
+			util.Touch(sentinel)
+		}
 	}()
+}
+
+func (c *Welcome) Menu(n Notifier, r Renderer) {
+
+	var welcomeSentinel string
+	dirname, err := os.UserHomeDir()
+	if err == nil {
+		welcomeSentinel = filepath.Join(dirname, ".config", "mocaccino-statusbar", "welcome_displayed")
+	}
+
+	if _, err := os.Stat(welcomeSentinel); os.IsNotExist(err) {
+		c.startWelcome(welcomeSentinel)
+	}
 }
 
 func (c *Welcome) Close()     {}

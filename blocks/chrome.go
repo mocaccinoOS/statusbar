@@ -34,6 +34,7 @@ func (c *ChromeEmbeddedOpener) Menu(n Notifier, r Renderer) {
 				// 	<body><h1>Hello, world!</h1></body>
 				// </html>
 				// `), "", 480, 320)
+
 				ui.SetBounds(lorca.Bounds{WindowState: lorca.WindowStateMaximized})
 				if err != nil {
 					log.Fatal(err)
