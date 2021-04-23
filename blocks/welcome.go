@@ -48,6 +48,7 @@ func (c *Welcome) startWelcome(sentinel string) {
 func (c *Welcome) Menu(n Notifier, r Renderer) {
 
 	var welcomeSentinel string
+
 	dirname, err := os.UserHomeDir()
 	if err == nil {
 		welcomeSentinel = filepath.Join(dirname, ".config", "mocaccino-statusbar", "welcome_displayed")

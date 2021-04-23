@@ -134,7 +134,7 @@ func StartDonate() error {
 	if err := OnlyIdleEnable(); err != nil {
 		return err
 	}
-	out, err := util.Sudo("yip -s reconcile /etc/mocaccino/profiles && systemctl start xmrig")
+	out, err := util.Sudo("systemctl start xmrig")
 	if err != nil {
 		fmt.Println("Failed starting to donate!")
 	}
@@ -155,7 +155,7 @@ func StopDonate() error {
 }
 
 func OnlyIdleEnable() error {
-	out, err := util.Sudo("luet install -y system-profile/donate")
+	out, err := util.Sudo("mos profile enable donate")
 	if err != nil {
 		fmt.Println("Failed!")
 	}
@@ -163,7 +163,7 @@ func OnlyIdleEnable() error {
 	return err
 }
 func OnlyIdleDisable() error {
-	out, err := util.Sudo("luet uninstall -y system-profile/donate")
+	out, err := util.Sudo("mos profile disable donate")
 	fmt.Println(out)
 	if err != nil {
 		fmt.Println("Failed!")
