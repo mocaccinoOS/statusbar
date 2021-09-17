@@ -16,10 +16,16 @@ type Open struct {
 	Text    string
 	SubText string
 	URL     string
+	SubMenu *systray.MenuItem
 }
 
-func (c *Open) Menu(n Notifier, r Renderer) {
-	url := systray.AddMenuItem(c.Text, c.SubText)
+func (c *Open) Menu(n Notifier, r Renderer, sm SessionManager) {
+	var url *systray.MenuItem
+	if c.SubMenu != nil {
+		url = c.SubMenu.AddSubMenuItem(c.Text, c.SubText)
+	} else {
+		url = systray.AddMenuItem(c.Text, c.SubText)
+	}
 	go func() {
 		for range url.ClickedCh {
 			open.Run(c.URL)

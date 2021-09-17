@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 APP=mocaccino-statusbar
-VERSION=${VERSION:-0.3}
+VERSION=${VERSION:-0.4}
 APPDIR=${DESTDIR:-${APP}_$VERSION}
 
 mkdir -p $APPDIR/usr/bin

@@ -32,6 +32,10 @@ func (c *Upgrade) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
+func upgrade() (string, error) {
+	return util.Sudo(fmt.Sprintf("luet upgrade -y && rm -rf %s", SentinelFile))
+}
+
 func (c *Upgrade) bind(m *systray.MenuItem, n Notifier) {
 	go func() {
 		for range m.ClickedCh {
@@ -50,7 +54,7 @@ func (c *Upgrade) bind(m *systray.MenuItem, n Notifier) {
 			c.upgradesRunning = true
 			c.upgradesAvailable = false
 			c.Unlock()
-			if out, err := util.Sudo(fmt.Sprintf("luet upgrade -y && rm -rf %s", SentinelFile)); err == nil {
+			if out, err := upgrade(); err == nil {
 				m.Hide()
 				n.Push("Upgrade done",
 					"All done, sit back and relax now",
@@ -104,7 +108,7 @@ func (c *Upgrade) onNotAvailable(n Notifier) {
 	// no upgrades available, nothing to show
 }
 
-func (c *Upgrade) Menu(n Notifier, r Renderer) {
+func (c *Upgrade) Menu(n Notifier, r Renderer, sm SessionManager) {
 	r.Activate(UpgradeKey)
 	go func() {
 		for {

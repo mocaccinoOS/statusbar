@@ -45,7 +45,7 @@ func (c *Welcome) startWelcome(sentinel string) {
 	}()
 }
 
-func (c *Welcome) Menu(n Notifier, r Renderer) {
+func (c *Welcome) Menu(n Notifier, r Renderer, sm SessionManager) {
 
 	var welcomeSentinel string
 

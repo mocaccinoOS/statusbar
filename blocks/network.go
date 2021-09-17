@@ -2,6 +2,7 @@ package blocks
 
 import (
 	"fmt"
+
 	util "github.com/MocaccinoOS/statusbar/utils"
 
 	"github.com/c2h5oh/datasize"
@@ -13,10 +14,18 @@ const (
 	NetworkKey string = "Network"
 )
 
-type Network struct{}
+type Network struct {
+	SubMenu *systray.MenuItem
+}
 
-func (c *Network) Menu(n Notifier, r Renderer) {
-	showNetwork := systray.AddMenuItemCheckbox("Show Network Statistics", "Show Network Statistics", false)
+func (c *Network) Menu(n Notifier, r Renderer, sm SessionManager) {
+
+	var showNetwork *systray.MenuItem
+	if c.SubMenu != nil {
+		showNetwork = c.SubMenu.AddSubMenuItemCheckbox("Show Network Statistics", "Show Network Statistics", false)
+	} else {
+		showNetwork = systray.AddMenuItemCheckbox("Show Network Statistics", "Show Network Statistics", false)
+	}
 
 	go func() {
 		for range showNetwork.ClickedCh {

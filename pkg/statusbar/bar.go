@@ -47,7 +47,7 @@ func (sb *Statusbar) Ready() {
 		AppName:     sb.Options.NotificatorAppName,
 	})
 
-	br := block.NewRenderer(sb.notificator, sb.Options.Blocks)
+	br := block.NewRenderer(sb.notificator, sb.Options.Blocks, &block.SessionManager{Application: sb.Options.NotificatorAppName})
 	br.Run()
 	sb.Serve()
 

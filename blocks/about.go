@@ -26,7 +26,7 @@ Source code available at: https://github.com/mocaccinoOS/statusbar
 
 type About struct{ Version string }
 
-func (c *About) Menu(n Notifier, r Renderer) {
+func (c *About) Menu(n Notifier, r Renderer, sm SessionManager) {
 	about := systray.AddMenuItem("About", "")
 	go func() {
 		for range about.ClickedCh {

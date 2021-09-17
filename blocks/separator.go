@@ -13,7 +13,7 @@ const (
 
 type Separator struct{}
 
-func (c *Separator) Menu(n Notifier, r Renderer) {
+func (c *Separator) Menu(n Notifier, r Renderer, sm SessionManager) {
 
 	systray.AddSeparator()
 

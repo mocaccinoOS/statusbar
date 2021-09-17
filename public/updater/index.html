@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Updates</title>  
+
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <script src="/assets/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.css">
+    <script src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script src="/assets/js/jquery.terminal.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/jquery.terminal.min.css"/>
+    
+
+  </head>
+
+    <body class="d-flex h-100  text-white bg-dark " >
+        
+      <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+
+        <div class="row clearfix">
+          <div class="col-sm-4 text-center" >
+
+          </div>     
+          <div class="col-sm-8">
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-10"><h2>Software upgrades</h2></div>
+                <div class="col-sm-2"><p class="updates font-italic"></p></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      <div class="row clearfix">
+        <div class="col-sm-4 text-center" >
+        <h1 class="display-1"><i class="bi bi-box-seam"></i></h1>
+        </div>
+        <div class="col-sm-8">        
+ 
+          <hr>
+        </div>
+      </div>
+
+      <div class="row clearfix">
+        <div class="col-sm-4 text-center" >
+
+        </div>     
+        <div class="col-sm-8">
+          <p class="text-center">
+            <button id="check" type="button" class="btn btn-info" onclick="check()"><i class="bi bi-search"></i> Check</button>
+            <button id="upgrade" type="button" class="btn btn-primary" onclick="upgrade()"><i class="bi bi-download"></i> Upgrade</button>
+          </p>
+          <div id="terminal" class="terminal"></div>
+
+          </div>
+      </div>
+    </div>
+  
+   
+
+
+
+      <script>
+      $(function() {
+        const term = $('#terminal').terminal({},{
+            prompt: '',
+            name: 'terminal',
+            height: 385,
+            greetings: '',
+        });
+         term.hide()
+         console.log = function(str){ term.echo(str); };
+
+         $( "#show" ).click(function() {
+          term.toggle();
+        });
+        $("#upgrade").hide()
+      });
+
+      </script>
+    </body>
+</html>

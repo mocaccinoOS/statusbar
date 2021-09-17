@@ -8,7 +8,10 @@ require (
 	github.com/briandowns/spinner v1.12.0
 	github.com/c2h5oh/datasize v0.0.0-20200825124411-48ed595a09d2
 	github.com/getlantern/systray v1.1.0
+	github.com/hpcloud/tail v1.0.0
 	github.com/mackerelio/go-osstat v0.1.0
+	github.com/mudler/go-processmanager v0.0.0-20210918125200-fc72bf14e8d6
+	github.com/nxadm/tail v1.4.8
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966

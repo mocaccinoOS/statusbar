@@ -3,21 +3,31 @@ package blocks
 import (
 	"fmt"
 
+	"time"
+
 	"github.com/c2h5oh/datasize"
 	"github.com/getlantern/systray"
 	"github.com/mackerelio/go-osstat/network"
-	"time"
 )
 
 const (
 	NetworkStatKey string = "NetworkStat"
 )
 
-type NetworkStat struct{}
+type NetworkStat struct {
+	SubMenu *systray.MenuItem
+}
 
-func (c *NetworkStat) Menu(n Notifier, r Renderer) {
+func (c *NetworkStat) Menu(n Notifier, r Renderer, sm SessionManager) {
 	devices := map[string]*systray.MenuItem{}
-	networkStat := systray.AddMenuItem("Network statistics", "")
+
+	var networkStat *systray.MenuItem
+	if c.SubMenu != nil {
+		networkStat = c.SubMenu.AddSubMenuItem("Network statistics", "")
+	} else {
+		networkStat = systray.AddMenuItem("Network statistics", "")
+	}
+
 	go func() {
 		for {
 			stats, err := network.Get()

@@ -2,6 +2,7 @@ package blocks
 
 import (
 	"fmt"
+
 	util "github.com/MocaccinoOS/statusbar/utils"
 	"github.com/getlantern/systray"
 )
@@ -14,10 +15,16 @@ type ShellToggle struct {
 	Name    string
 	Prefix  string
 	Command string
+	SubMenu *systray.MenuItem
 }
 
-func (c *ShellToggle) Menu(n Notifier, r Renderer) {
-	showCommand := systray.AddMenuItemCheckbox(c.Name, "", false)
+func (c *ShellToggle) Menu(n Notifier, r Renderer, sm SessionManager) {
+	var showCommand *systray.MenuItem
+	if c.SubMenu != nil {
+		showCommand = c.SubMenu.AddSubMenuItemCheckbox(c.Name, "", false)
+	} else {
+		showCommand = systray.AddMenuItemCheckbox(c.Name, "", false)
+	}
 	go func() {
 		for range showCommand.ClickedCh {
 			if showCommand.Checked() {

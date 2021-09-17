@@ -28,7 +28,7 @@ func (c *Donate) Close() {
 	// OnlyIdleDisable()
 }
 
-func (c *Donate) Menu(n Notifier, r Renderer) {
+func (c *Donate) Menu(n Notifier, r Renderer, sm SessionManager) {
 	donateMenu := systray.AddMenuItem("Donate HW Power", "Donate HW Power to MocaccinoOS by running xmrig")
 	mStartDonating := donateMenu.AddSubMenuItem("Start donating HW", "Runs xmrig")
 	mStopDonating := donateMenu.AddSubMenuItem("Stop donating HW", "Stops xmrig")

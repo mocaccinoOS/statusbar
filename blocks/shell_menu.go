@@ -2,9 +2,10 @@ package blocks
 
 import (
 	"fmt"
+	"time"
+
 	util "github.com/MocaccinoOS/statusbar/utils"
 	"github.com/getlantern/systray"
-	"time"
 )
 
 const (
@@ -14,10 +15,16 @@ const (
 type ShellMenu struct {
 	Name    string
 	Command string
+	SubMenu *systray.MenuItem
 }
 
-func (c *ShellMenu) Menu(n Notifier, r Renderer) {
-	showCommand := systray.AddMenuItem("", "")
+func (c *ShellMenu) Menu(n Notifier, r Renderer, sm SessionManager) {
+	var showCommand *systray.MenuItem
+	if c.SubMenu != nil {
+		showCommand = c.SubMenu.AddSubMenuItem("", "")
+	} else {
+		showCommand = systray.AddMenuItem("", "")
+	}
 	showCommand.Disable()
 	go func() {
 		for {

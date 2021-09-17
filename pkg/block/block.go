@@ -17,7 +17,7 @@ type Notifier interface {
 type Block interface {
 	Render(blocks.Notifier) string
 	ID() string
-	Menu(blocks.Notifier, blocks.Renderer)
+	Menu(blocks.Notifier, blocks.Renderer, blocks.SessionManager)
 	Close()
 }
 
@@ -26,11 +26,12 @@ type Renderer struct {
 	notifier blocks.Notifier
 	blocks   []Block
 	active   map[string]interface{}
+	session  *SessionManager
 }
 
 func (br *Renderer) RenderMenu() {
 	for _, b := range br.blocks {
-		b.Menu(br.notifier, br)
+		b.Menu(br.notifier, br, br.session)
 	}
 }
 
@@ -78,10 +79,11 @@ func (br *Renderer) Close() {
 	}
 }
 
-func NewRenderer(n blocks.Notifier, b []Block) *Renderer {
+func NewRenderer(n blocks.Notifier, b []Block, sm *SessionManager) *Renderer {
 	return &Renderer{
 		notifier: n,
 		active:   make(map[string]interface{}),
 		blocks:   b,
+		session:  sm,
 	}
 }

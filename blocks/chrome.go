@@ -16,12 +16,16 @@ type ChromeEmbeddedOpener struct {
 	Text    string
 	SubText string
 	URL     string
+	SubMenu *systray.MenuItem
 }
 
-func (c *ChromeEmbeddedOpener) Menu(n Notifier, r Renderer) {
-
-	url := systray.AddMenuItem(c.Text, c.SubText)
-
+func (c *ChromeEmbeddedOpener) Menu(n Notifier, r Renderer, sm SessionManager) {
+	var url *systray.MenuItem
+	if c.SubMenu != nil {
+		url = c.SubMenu.AddSubMenuItem(c.Text, c.SubText)
+	} else {
+		url = systray.AddMenuItem(c.Text, c.SubText)
+	}
 	//n.Push("test", "test", "", notificator.UR_CRITICAL)
 	go func() {
 

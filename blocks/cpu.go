@@ -12,15 +12,20 @@ const (
 )
 
 type CPU struct {
-	c *cpu.Stats
+	c       *cpu.Stats
+	SubMenu *systray.MenuItem
 }
 
 func (c *CPU) Close() {
 }
 
-func (c *CPU) Menu(n Notifier, r Renderer) {
-	showCPU := systray.AddMenuItemCheckbox("Show CPU Metrics", "Show CPU metrics", false)
-
+func (c *CPU) Menu(n Notifier, r Renderer, sm SessionManager) {
+	var showCPU *systray.MenuItem
+	if c.SubMenu != nil {
+		showCPU = c.SubMenu.AddSubMenuItemCheckbox("Show CPU Metrics", "Show CPU metrics", false)
+	} else {
+		showCPU = systray.AddMenuItemCheckbox("Show CPU Metrics", "Show CPU metrics", false)
+	}
 	go func() {
 		for range showCPU.ClickedCh {
 			if showCPU.Checked() {

@@ -11,10 +11,18 @@ const (
 	MemoryKey string = "memory"
 )
 
-type Memory struct{}
+type Memory struct {
+	SubMenu *systray.MenuItem
+}
 
-func (c *Memory) Menu(n Notifier, r Renderer) {
-	showMemory := systray.AddMenuItemCheckbox("Show Memory Metrics", "Show Memory metrics", false)
+func (c *Memory) Menu(n Notifier, r Renderer, sm SessionManager) {
+	var showMemory *systray.MenuItem
+	if c.SubMenu != nil {
+		showMemory = c.SubMenu.AddSubMenuItemCheckbox("Show Memory Metrics", "Show Memory metrics", false)
+	} else {
+		showMemory = systray.AddMenuItemCheckbox("Show Memory Metrics", "Show Memory metrics", false)
+	}
+
 	go func() {
 		for range showMemory.ClickedCh {
 			if showMemory.Checked() {
