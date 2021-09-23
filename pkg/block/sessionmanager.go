@@ -34,19 +34,29 @@ func (sm *SessionManager) Process(name, command string) *process.Process {
 	)
 }
 
-func (sm *SessionManager) AttachLogfiles(pr *process.Process, w *uilibs.UITerminalWriter) {
+func (sm *SessionManager) AttachLogfiles(pr *process.Process, w *uilibs.UITerminalWriter, doneStdout, doneStderr chan bool) {
 	go func() {
 		t, _ := tail.TailFile(pr.StdoutPath(), tail.Config{Follow: true})
-		for line := range t.Lines {
-			//w.Write([]byte(line.Text))
-			w.Chan <- line.Text
+
+		for {
+			select {
+			case line := <-t.Lines: // Every 100ms increate number of ticks and update UI
+				w.Chan <- line.Text
+			case <-doneStdout:
+				return
+			}
 		}
+
 	}()
 	go func() {
 		t, _ := tail.TailFile(pr.StderrPath(), tail.Config{Follow: true})
-		for line := range t.Lines {
-			//w.Write([]byte(line.Text))
-			w.Chan <- line.Text
+		for {
+			select {
+			case line := <-t.Lines: // Every 100ms increate number of ticks and update UI
+				w.Chan <- line.Text
+			case <-doneStderr:
+				return
+			}
 		}
 	}()
 }

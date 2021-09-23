@@ -27,6 +27,7 @@ type Updater struct {
 	runningUpgrade     bool
 	availableUpgrade   bool
 	checkingUpgrades   bool
+	logfileAttached    bool
 	sync.Mutex
 }
 
@@ -39,24 +40,36 @@ func (c *Updater) message(ui lorca.UI, i ...interface{}) {
 		i...))
 }
 
-func (c *Updater) refreshUI(ui lorca.UI, sm SessionManager) {
+func (c *Updater) box(ui lorca.UI, i ...interface{}) {
+	ui.Eval(fmt.Sprintf("document.querySelector('.box').innerHTML = `%s`",
+		i...))
+}
+
+func (c *Updater) refreshUI(ui lorca.UI, sm SessionManager, w *uilibs.UITerminalWriter,
+	stdout, stderr chan bool) {
 	//c.Lock()
 	//defer c.Unlock()
 	pr := sm.Process("update", UpgradeCommand)
 	if pr.IsAlive() {
 		ui.Eval("$('#terminal').show()")
 		c.runningUpgrade = true
-		c.message(ui, icon("download"))
+		c.message(ui, "upgrades running"+icon("download"))
+		c.box(ui, "Upgrades running, don't turn off your computer!")
 		ui.Eval("$('#upgrade').hide()")
+		ui.Eval("$('#check').hide()")
 		c.availableUpgrade = false
+		if !c.logfileAttached {
+			sm.AttachLogfiles(pr, w, stdout, stderr)
+			c.logfileAttached = true
+		}
 	} else if c.availableUpgrade {
 		c.message(ui, icon("download"))
 		ui.Eval("$('#upgrade').show()")
-
+		c.box(ui, "Upgrades available! click on the Upgrade button to start the upgrade process. Don't turn off your computer during the process")
 		c.runningUpgrade = false
 	} else if c.checkingUpgrades {
 		ui.Eval("$('#check').hide()")
-
+		c.box(ui, "Please wait, checking available upgrades.")
 		//ui.Eval(`$("#check i").attr("class","bi bi-arrow-clockwise");`)
 		c.message(ui, `<div class="d-flex justify-content-center">
 		<div class="spinner-border" role="status">
@@ -67,6 +80,7 @@ func (c *Updater) refreshUI(ui lorca.UI, sm SessionManager) {
 	} else {
 		//ui.Eval(`$("#check i").attr("class","bi bi-search");`)
 		ui.Eval("$('#check').show()")
+		c.box(ui, "All seems upgraded and running the latest software. You can close the window")
 
 		fmt.Println("Upgrade not running")
 		ui.Eval("$('#terminal').hide()")
@@ -89,7 +103,6 @@ func (c *Updater) availableUpgrades() bool {
 	}()
 
 	cmd := exec.Command("pkexec", "/bin/bash", "-c", `luet upgrade`)
-	//cmd := exec.Command("/bin/bash", "-c", `LUET_NOLOCK=true luet upgrade`)
 	b, _ := cmd.CombinedOutput()
 	if strings.Contains(string(b), "Nothing to do") {
 		fmt.Println("Nothing to do")
@@ -111,17 +124,20 @@ func (c *Updater) Menu(n Notifier, r Renderer, sm SessionManager) {
 
 		for range url.ClickedCh {
 			go func() {
+				c.logfileAttached = false
 				ui, err := lorca.New("http://127.0.0.1:9910/updater/index.html", "", 600, 390)
 				if err != nil {
 					log.Println("Failed starting chrome", err.Error())
 					return
 				}
+				doneUI, doneUpgrades, doneStdout, doneStderr := make(chan bool), make(chan bool), make(chan bool), make(chan bool)
 
 				w := uilibs.NewTerminalWriter(ui)
 				w.Start()
 				pr := sm.Process("update", UpgradeCommand)
-				c.refreshUI(ui, sm)
-				doneUI, doneUpgrades := make(chan bool), make(chan bool)
+				c.refreshUI(ui, sm, w, doneStdout, doneStderr)
+
+				c.availableUpgrades()
 
 				// Bind Go functions to JS
 				ui.Bind("check", func() {
@@ -131,7 +147,7 @@ func (c *Updater) Menu(n Notifier, r Renderer, sm SessionManager) {
 				ui.Bind("upgrade", func() {
 
 					pr = sm.Process("update", UpgradeCommand)
-					c.refreshUI(ui, sm)
+					c.refreshUI(ui, sm, w, doneStdout, doneStderr)
 					os.RemoveAll(pr.StateDir())
 
 					c.message(ui, "Upgrade in progress")
@@ -148,7 +164,8 @@ func (c *Updater) Menu(n Notifier, r Renderer, sm SessionManager) {
 					}
 					fmt.Println("attach logs", pr.StateDir())
 
-					sm.AttachLogfiles(pr, w)
+					sm.AttachLogfiles(pr, w, doneStdout, doneStderr)
+					c.logfileAttached = true
 				})
 
 				go func() {
@@ -156,29 +173,29 @@ func (c *Updater) Menu(n Notifier, r Renderer, sm SessionManager) {
 					for {
 						select {
 						case <-t.C: // Every 100ms increate number of ticks and update UI
-							c.refreshUI(ui, sm)
+							c.refreshUI(ui, sm, w, doneStdout, doneStderr)
 						case <-doneUI:
 							return
 						}
 					}
 				}()
 
-				go func() {
+				// go func() {
 
-					d := 5 * time.Minute
-					if c.CheckUpgradesTimer != nil {
-						d = *c.CheckUpgradesTimer
-					}
-					t := time.NewTicker(d)
-					for {
-						select {
-						case <-t.C: // Every 100ms increate number of ticks and update UI
-							c.availableUpgrades()
-						case <-doneUpgrades:
-							return
-						}
-					}
-				}()
+				// 	d := 5 * time.Minute
+				// 	if c.CheckUpgradesTimer != nil {
+				// 		d = *c.CheckUpgradesTimer
+				// 	}
+				// 	t := time.NewTicker(d)
+				// 	for {
+				// 		select {
+				// 		case <-t.C: // Every 100ms increate number of ticks and update UI
+				// 			c.availableUpgrades()
+				// 		case <-doneUpgrades:
+				// 			return
+				// 		}
+				// 	}
+				// }()
 				//	ui.SetBounds(lorca.Bounds{WindowState: lorca.WindowStateMaximized})
 				//	if err != nil {
 				//		log.Fatal(err)
@@ -188,9 +205,10 @@ func (c *Updater) Menu(n Notifier, r Renderer, sm SessionManager) {
 					w.Close()
 					doneUI <- true
 					doneUpgrades <- true
+					doneStderr <- true
+					doneStdout <- true
 				}()
 
-				c.availableUpgrades()
 				// Wait until UI window is closed
 				<-ui.Done()
 

@@ -16,5 +16,5 @@ type Notifier interface {
 type SessionManager interface {
 	Path(s ...string) string
 	Process(name, command string) *process.Process
-	AttachLogfiles(pr *process.Process, w *uilibs.UITerminalWriter)
+	AttachLogfiles(pr *process.Process, w *uilibs.UITerminalWriter, d, e chan bool)
 }
